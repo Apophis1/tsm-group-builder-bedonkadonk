@@ -22,7 +22,7 @@ def scrape():
 
             try:
                 print("Navigating to:", url,flush=True)
-                page.goto(url, timeout=60000, wait_until='domcontentloaded')
+                page.goto(url, timeout=60000, wait_until="domcontentloaded")
             except Exception as nav_err:
                 print("Navigation timeout or error:", nav_err, flush=True)
                 return jsonify({"error": "Page load failed or timed out."}), 504
