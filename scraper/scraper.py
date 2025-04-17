@@ -2,10 +2,15 @@ from flask import jsonify
 import os
 import re
 import json
+from flask import Blueprint, request, jsonify
+
+scraper_bp = Blueprint("scraper", __name__)
+
 from playwright.sync_api import sync_playwright
 
 os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 
+@scraper_bp.route("/api/scrape", methods=["POST"])
 def scrape():
     try:
         print("Received a request")
