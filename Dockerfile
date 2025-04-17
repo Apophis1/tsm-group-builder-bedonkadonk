@@ -34,9 +34,10 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Set this to ensure the browser path is respected at runtime
 ENV PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/.cache/ms-playwright
 
-# Install Node and Playwright browser cleanly
+# Install Node.js and Playwright
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
+    npm init -y && npm install playwright@latest && \
     mkdir -p /usr/local/share/.cache/ms-playwright && \
     npx playwright install --with-deps chromium
 
