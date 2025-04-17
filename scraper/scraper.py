@@ -14,6 +14,7 @@ os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 def scrape():
     try:
         print("Received a request")
+        url = request.json.get("url")
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
@@ -25,6 +26,7 @@ def scrape():
             except Exception as nav_err:
                 print("Navigation timeout or error:", nav_err)
                 return jsonify({"error": "Page load failed or timed out."}), 504
+
 
             content = page.content()
 
