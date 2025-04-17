@@ -1,11 +1,11 @@
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1
+# Define browser path explicitly
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
 
-# Install system packages required for Chromium
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
@@ -28,18 +28,17 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies and Playwright
+# Install Python deps
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Install Playwright Chromium (this is the key step)
-RUN python -m playwright install --with-deps chromium
+# Force install Chromium to a known-good persistent location
+RUN mkdir -p /ms-playwright && \
+    python -m playwright install chromium
 
-# Copy your project files
+# Copy your app
 COPY . .
 
-# Expose Railway’s expected port
 EXPOSE 8000
 
-# Start your Flask app with Gunicorn
 CMD gunicorn app:app --bind 0.0.0.0:$PORT
