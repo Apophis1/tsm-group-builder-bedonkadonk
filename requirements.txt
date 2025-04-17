@@ -1,0 +1,5 @@
+gunicorn
+json5
+flask
+flask-cors
+playwright
