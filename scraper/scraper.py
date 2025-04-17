@@ -14,8 +14,10 @@ def scrape():
         return jsonify({"error": "No URL provided"}), 400
 
     try:
+	print("Received a request")
         with sync_playwright() as p:
             with p.chromium.launch(headless=True) as browser:
+		print("Opening Browser")
                 page = browser.new_page()
                 print("Navigating to: ", url)
                 page.goto(url, timeout=45000, wait_until='load')
@@ -35,7 +37,6 @@ def scrape():
 	        if isinstance(item.get("id"), int) and 0 < item["id"] < 200000
         ]
 
-        print("Item IDs:", item_ids)
 
         print("Visible item count:", len(item_ids))
         
