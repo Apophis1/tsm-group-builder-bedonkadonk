@@ -31,9 +31,13 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Install Node.js and Playwright browser
+# Set this to ensure the browser path is respected at runtime
+ENV PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/.cache/ms-playwright
+
+# Install Node and Playwright browser cleanly
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
+    mkdir -p /usr/local/share/.cache/ms-playwright && \
     npx playwright install --with-deps chromium
 
 # Copy your app

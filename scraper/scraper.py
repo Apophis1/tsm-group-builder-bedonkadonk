@@ -48,4 +48,4 @@ def scrape():
     
     except Exception as e:
         print("Scraper error:", str(e))
-    return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
