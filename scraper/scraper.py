@@ -1,5 +1,6 @@
 import re
 import json5 as json  
+import os
 from flask import Blueprint, request, jsonify
 from playwright.sync_api import sync_playwright
 
@@ -14,6 +15,7 @@ def scrape():
         return jsonify({"error": "No URL provided"}), 400
 
     try:
+        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
         print("Received a request")
         with sync_playwright() as p:
             with p.chromium.launch(headless=True) as browser:
