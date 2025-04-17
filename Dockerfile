@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Define browser path explicitly
+# Tell Playwright where to install browsers
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
@@ -28,17 +28,18 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python deps
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Force install Chromium to a known-good persistent location
-RUN mkdir -p /ms-playwright && \
-    python -m playwright install chromium
+# ✅ Explicitly install Chromium to known location
+RUN python -m playwright install chromium
 
-# Copy your app
+# Copy your app code
 COPY . .
 
+# Open the backend port
 EXPOSE 8000
 
+# Start Gunicorn
 CMD gunicorn app:app --bind 0.0.0.0:$PORT
