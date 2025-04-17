@@ -1,7 +1,7 @@
 from flask import jsonify
 import os
 import re
-import json
+import demjson3
 from flask import Blueprint, request, jsonify
 
 scraper_bp = Blueprint("scraper", __name__)
@@ -35,7 +35,7 @@ def scrape():
             print("No match for listviewitems",flush=True)
             return jsonify({"error": "Could not find visible items on the page."}), 404
 
-        items = json.loads(match.group(1))
+        items = demjson3.decode(match.group(1))
 
         item_ids = [
             item.get("id") for item in items

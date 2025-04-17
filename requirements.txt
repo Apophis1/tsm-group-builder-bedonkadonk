@@ -1,5 +1,5 @@
 gunicorn
-json5
+demjson3
 flask
 flask-cors
 playwright
