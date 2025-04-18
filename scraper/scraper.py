@@ -34,12 +34,14 @@ def scrape():
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+            context = browser.new_context()
+            page = context.new_page()
 
-            # Block unneeded resources (ads/images/etc.)
+            # Route blocking *before* navigation
             page.route("**/*", lambda route, req: route.abort() if any(x in req.url for x in ["ads", "doubleclick", "googletagmanager", "gstatic"]) else route.continue_())
 
             page.goto(url, timeout=90000, wait_until='load')
+
 
             if mode == "retail":
                 # Evaluate script content directly in browser
