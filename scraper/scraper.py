@@ -60,7 +60,7 @@ async def scrape_async():
                 try:
                     # Only recheck mode if it wasn't explicitly set
                     if mode == "classic":
-                        await page.wait_for_selector(".imitation-select", timeout=5000)
+                        await page.wait_for_selector(".imitation-select", timeout=10000)
                         dropdown_text = await page.locator(".imitation-select").inner_text()
                         dropdown_text = dropdown_text.strip().lower()
                         if "wow classic - classic era" not in dropdown_text:
