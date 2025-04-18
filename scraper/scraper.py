@@ -1,51 +1,51 @@
+from flask import jsonify
+import os
 import re
-import json5 as json  
+import json
 from flask import Blueprint, request, jsonify
-from playwright.sync_api import sync_playwright
 
 scraper_bp = Blueprint("scraper", __name__)
 
+from playwright.sync_api import sync_playwright
+
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
+
 @scraper_bp.route("/api/scrape", methods=["POST"])
 def scrape():
-    data = request.get_json()
-    url = data.get("url")
-
-    if not url:
-        return jsonify({"error": "No URL provided"}), 400
-
     try:
-        print("Received a request")
-        with sync_playwright() as p:
-            with p.chromium.launch(headless=True) as browser:
-                print("Opening Browser")
-                page = browser.new_page()
-                print("Navigating to: ", url)
-                page.goto(url, timeout=45000, wait_until='load')
-                content = page.content()
+        print("Received a request", flush=True)
+        url = request.json.get("url")
 
-        # Extract the listviewitems block which shows visible items
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+
+            try:
+                print("Navigating to:", url,Flush=True)
+                page.goto(url, timeout=60000, wait_until='domcontentloaded')
+            except Exception as nav_err:
+                print("Navigation timeout or error:", nav_err, Flush=True)
+                return jsonify({"error": "Page load failed or timed out."}), 504
+
+
+            content = page.content()
+
         match = re.search(r'listviewitems\s*=\s*(\[.*?\]);', content, re.DOTALL)
         if not match:
-            return jsonify({"error": "Could not find listviewitems block in page."}), 500
+            print("No match for listviewitems",Flush=True)
+            return jsonify({"error": "Could not find visible items on the page."}), 404
 
         items = json.loads(match.group(1))
 
-        # Extract item IDs from visible list
         item_ids = [
             item.get("id") for item in items
-            # Instead of filtering IDs arbitrarily:
-	        if isinstance(item.get("id"), int) and 0 < item["id"] < 200000
+            if isinstance(item.get("id"), int) and 0 < item["id"] < 200000
         ]
 
+        print(f"Item IDs ({len(item_ids)}):", item_ids,Flush=True)
 
-        print("Visible item count:", len(item_ids))
-        
-        return jsonify({
-            "items": {
-                "item_ids": item_ids
-            }
-        })
+        return jsonify({"items": {"item_ids": item_ids}})
     
     except Exception as e:
-        print("Scraper error:", str(e))
+        print("Scraper error:", str(e),Flush=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
