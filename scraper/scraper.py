@@ -70,7 +70,7 @@ def scrape():
                     print("Classic listviewitems block not found", flush=True)
                     return jsonify({"error": "Could not find listviewitems in HTML"}), 404
 
-            items = json.loads(match.group(1))
+                items = json.loads(match.group(1))  # Classic parse here
 
 
             # Filter item IDs
