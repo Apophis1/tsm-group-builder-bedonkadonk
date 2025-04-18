@@ -11,8 +11,11 @@ os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 @scraper_bp.route("/api/scrape", methods=["POST"])
 def scrape():
     return asyncio.run(scrape_async())
+
 async def scrape_async():
     try:
+        # your code continues here...
+
         print("Received a request", flush=True)
         url = request.json.get("url")
         if not url:
