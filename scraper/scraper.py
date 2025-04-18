@@ -37,8 +37,7 @@ def scrape():
                 print("Navigation timeout or error:", nav_err, flush=True)
                 return jsonify({"error": "Page load failed or timed out."}), 504
 
-
-            content = page.evaluate("document.documentElement.innerHTML")
+            content = page.content()
 
         match = re.search(r'listviewitems\s*=\s*(\[.*?\]);', content, re.DOTALL)
         if not match:
