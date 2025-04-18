@@ -60,13 +60,30 @@ async def scrape_async():
                 try:
                     # Only recheck mode if it wasn't explicitly set
                     if mode == "classic":
-                        await page.wait_for_selector(".imitation-select", timeout=10000)
-                        dropdown_text = await page.locator(".imitation-select").inner_text()
-                        dropdown_text = dropdown_text.strip().lower()
-                        if "wow classic - classic era" not in dropdown_text:
-                            print(f"Dropdown text detected: '{dropdown_text}'", flush=True)
-                            print("Dropdown indicates SoD — overriding mode to sod", flush=True)
-                            mode = "sod"
+                        try:
+                            await page.wait_for_selector(".imitation-select", timeout=5000)
+                            await page.click(".imitation-select")  # open dropdown
+
+        # Wait for menu items to appear
+                            await page.wait_for_selector(".icon-list .icon-list-item", timeout=3000)
+
+        # Click the menu option for "WoW Classic - Classic Era"
+                            await page.locator(".icon-list .icon-list-item", has_text="WoW Classic - Classic Era").click()
+
+        # Wait for the page to reload after click
+                            await page.wait_for_load_state("domcontentloaded")
+
+        # Re-check the dropdown value after reload
+                            dropdown_text = await page.locator(".imitation-select").inner_text()
+                            dropdown_text = dropdown_text.strip().lower()
+                            print(f"Dropdown text after reload: '{dropdown_text}'", flush=True)
+
+                            if "season of discovery" in dropdown_text or "all seasons & phases" in dropdown_text:
+                                print("Dropdown indicates SoD — overriding mode to sod", flush=True)
+                                mode = "sod"
+                        except Exception as e:
+                            print(f"Dropdown interaction failed: {type(e).__name__} - {e}", flush=True)
+
                 except Exception as e:
                     print(f"Dropdown not found or failed to read: {type(e).__name__} - {e}", flush=True)
 
