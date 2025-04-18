@@ -37,7 +37,17 @@ def scrape():
             page = browser.new_page()
 
             # Block ads & tracking
-            page.route("**/*", lambda route, req: route.abort() if any(x in req.url for x in ["ads", "googletag", "gstatic", "doubleclick"]) else route.continue_())
+            def block_ads(route, request):
+                try:
+                    if any(x in request.url for x in ["ads", "googletag", "gstatic", "doubleclick"]):
+                        route.abort()
+                    else:
+                        route.continue_()
+                except Exception as e:
+                    print("Routing error:", e, flush=True)
+
+            page.route("**/*", block_ads)
+
 
             page.goto(url, wait_until='domcontentloaded')
             page.wait_for_selector(".listview-row", timeout=10000)
