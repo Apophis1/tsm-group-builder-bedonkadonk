@@ -1,6 +1,7 @@
 import os
 import re
 import json5 as json
+import asyncio
 from flask import Blueprint, request, jsonify
 from playwright.sync_api import sync_playwright
 
@@ -39,26 +40,20 @@ def scrape():
             # Block ads & tracking
             def block_ads(route, request):
                 try:
-                    if route._finished:
-                        return
                     if any(x in request.url for x in ["ads", "googletag", "gstatic", "doubleclick"]):
                         route.abort()
                     else:
                         route.continue_()
-                except asyncio.CancelledError:
-                    pass    
                 except Exception as e:
-                
-                    # CancelledError happens if the page closes or request is gone
-                    print(f"Routing error for {request.url}: {type(e).__name__} - {e}", flush=True)
+                    if isinstance(e, asyncio.CancelledError):
+                        # This is safe to ignore — happens when the page closes early
+                        pass
+                    elif "already handled" in str(e).lower():
+                        # Optional: ignore spam from routes already handled
+                        pass
+                    else:
+                        print(f"Routing error for {request.url}: {type(e).__name__} - {e}", flush=True)
 
-                try:
-                    if any(x in request.url for x in ["ads", "googletag", "gstatic", "doubleclick"]):
-                        route.abort()
-                    else:
-                        route.continue_()
-                except Exception as e:
-                    print("Routing error:", e, flush=True)
 
             page.route("**/*", block_ads)
 
