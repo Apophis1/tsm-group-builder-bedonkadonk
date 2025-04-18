@@ -46,7 +46,12 @@ def scrape():
             print("No match for listviewitems",flush=True)
             return jsonify({"error": "Could not find visible items on the page."}), 404
 
-        items = demjson3.decode(match.group(1))
+        try:
+            items = demjson3.decode(match.group(1))
+        except Exception as decode_err:
+            print("JSON decode failed:", str(decode_err), flush=True)
+            return jsonify({"error": "Item data could not be decoded. This may be a malformed or massive page."}), 500
+
 
         def is_valid_item(item, mode):
             item_id = item.get("id")
