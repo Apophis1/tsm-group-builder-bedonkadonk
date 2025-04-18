@@ -79,7 +79,7 @@ async def scrape_async():
                                 dropdown_text = dropdown_text.strip().lower()
                                 print(f"Dropdown text after reload: '{dropdown_text}'", flush=True)
 
-                                if "classic" is not in dropdown_text:
+                                if "classic" not in dropdown_text:
                                     print("Dropdown indicates SoD — overriding mode to sod", flush=True)
                                     mode = "sod"
                                 
