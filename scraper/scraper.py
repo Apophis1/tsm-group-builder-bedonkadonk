@@ -1,7 +1,7 @@
 from flask import jsonify
 import os
 import re
-import json5
+import json5 as json
 from flask import Blueprint, request, jsonify
 
 scraper_bp = Blueprint("scraper", __name__)
@@ -46,7 +46,7 @@ def scrape():
             return jsonify({"error": "Could not find visible items on the page."}), 404
 
         try:
-            items = json5.loads(match.group(1))
+            items = json.loads(match.group(1))
         except Exception as decode_err:
             print("JSON decode failed:", str(decode_err), flush=True)
             return jsonify({"error": "Item data could not be decoded. This may be a malformed or massive page."}), 500
@@ -59,7 +59,7 @@ def scrape():
                 return False
 
             if mode in ["classic", "sod", "anniversary"]:
-                return 0 < item_id < 200000
+                return 0 < item_id
 
             if mode == "retail":
                 return item.get("hidden") is not True and item.get("flags2") != 0x800000
