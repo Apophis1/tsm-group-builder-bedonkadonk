@@ -1,7 +1,6 @@
 import os
 import re
-import json
-import json5
+import json5 as json
 from flask import Blueprint, request, jsonify
 from playwright.sync_api import sync_playwright
 
@@ -71,7 +70,7 @@ def scrape():
                     print("Classic listviewitems block not found", flush=True)
                     return jsonify({"error": "Could not find listviewitems in HTML"}), 404
 
-            items = json5.loads(match.group(1))
+            items = json.loads(match.group(1))
 
 
             # Filter item IDs
