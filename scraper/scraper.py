@@ -45,8 +45,8 @@ def scrape():
                         route.continue_()
                 except Exception as e:
                 
-                # CancelledError happens if the page closes or request is gone
-                print(f"Routing error for {request.url}: {type(e).__name__} - {e}", flush=True)
+                    # CancelledError happens if the page closes or request is gone
+                    print(f"Routing error for {request.url}: {type(e).__name__} - {e}", flush=True)
 
                 try:
                     if any(x in request.url for x in ["ads", "googletag", "gstatic", "doubleclick"]):
