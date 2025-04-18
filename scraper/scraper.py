@@ -59,7 +59,7 @@ async def scrape_async():
 
                 try:
                     # Only recheck mode if it wasn't explicitly set
-                    if mode in ("classic"):
+                    if mode == "classic":
                         await page.wait_for_selector(".imitation-select", timeout=5000)
                         dropdown_text = await page.locator(".imitation-select").inner_text()
                         dropdown_text = dropdown_text.strip().lower()
