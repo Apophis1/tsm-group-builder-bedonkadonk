@@ -57,12 +57,12 @@ async def scrape_async():
             try:
                 await page.wait_for_selector(".imitation-select", timeout=5000)
                 dropdown_text = await page.locator(".imitation-select").inner_text()
-
-                if "Season of Discovery" in dropdown_text or "All Seasons and Phases" in dropdown_text:
+                dropdown_text = dropdown_text.strip().lower()
+                if "season of discovery" in dropdown_text or "all seasons & phases" in dropdown_text:
                     mode = "sod"
 
-                except Exception as e:
-                    print(f"Dropdown not found or failed to read: {type(e).__name__} - {e}", flush=True)
+            except Exception as e:
+                print(f"Dropdown not found or failed to read: {type(e).__name__} - {e}", flush=True)
                 
 
             if mode == "retail":
