@@ -77,7 +77,10 @@ def scrape():
             item_ids = [
                 item.get("id") for item in items
                 if isinstance(item.get("id"), int) and 0 < item["id"] < 200000
+                and not item.get("hidden", False)
+                and item.get("available", 1) == 1
             ]
+
 
             print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
             return jsonify({"items": {"item_ids": item_ids}})
