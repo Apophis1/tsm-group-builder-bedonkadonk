@@ -33,7 +33,7 @@ def scrape():
         items = json.loads(match.group(1))
 
         # Match item IDs which are top-level keys in the object
-        item_ids = re.findall(r'"(\d+)":\s*{', item_data_block)
+        item_ids = re.findall(r'"(\d+)":\s*{', items)
 
         # Convert and filter valid item IDs
         item_ids = [
