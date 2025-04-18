@@ -35,7 +35,7 @@ async def scrape_async():
         print("Detected mode:", mode, flush=True)
         print("Navigating to:", url, flush=True)
 
-       async def scrape_async():
+    async def scrape_async():
     try:
         print("Received a request", flush=True)
         url = request.json.get("url")
