@@ -79,6 +79,9 @@ def scrape():
 
                 items = json.loads(match.group(1))  # Classic parse here
 
+            visible_ids = page.eval_on_selector_all(
+            ".listview-row", "nodes => nodes.map(n => parseInt(n.dataset.id)).filter(id => !isNaN(id))"
+            )
 
             # Filter item IDs
             if mode == "retail":
@@ -98,6 +101,8 @@ def scrape():
                 and item.get("available", 1) == 1
                 and item.get("id") in visible_ids
             })
+                
+            item_ids = sorted(item_ids)
 
             print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
             return jsonify({"items": {"item_ids": item_ids}})
