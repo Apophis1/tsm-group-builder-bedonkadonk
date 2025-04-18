@@ -75,8 +75,8 @@ async def scrape_async():
                             print("Dropdown indicates SoD — overriding mode to sod", flush=True)
                             mode = "sod"
 
-                except Exception as e:
-                    print(f"Dropdown read failed: {type(e).__name__} - {e}", flush=True)
+                    except Exception as e:
+                        print(f"Dropdown read failed: {type(e).__name__} - {e}", flush=True)
                     
                 if mode == "retail":
                     js_data = await page.evaluate("""
