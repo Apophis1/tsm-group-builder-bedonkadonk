@@ -17,8 +17,6 @@ def scrape():
         url = request.json.get("url")
         if "classic" in url:
             mode = "anniversary"
-        elif "sod" in url:
-            mode = "sod"
         elif "cata" in url:
             mode = "cata"
         else:
