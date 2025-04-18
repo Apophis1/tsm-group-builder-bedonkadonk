@@ -117,15 +117,24 @@ async def scrape_async():
                     and item.get("available", 1) == 1
                     and item.get("id") in visible_ids
                 })
-            else:
+            elif mode in ("classic", "anniversary"):
+                item_ids = list({
+                item.get("id") for item in items
+                if isinstance(item.get("id"), int)
+                and 0 < item["id"] < 200000
+                and not item.get("hidden", False)
+                and item.get("available", 1) == 1
+                and item.get("id") in visible_ids
+            })
+            elif mode == "sod":
                 item_ids = list({
                     item.get("id") for item in items
                     if isinstance(item.get("id"), int)
-                    and 0 < item["id"] < 200000
+                    and item["id"] > 0
                     and not item.get("hidden", False)
                     and item.get("available", 1) == 1
                     and item.get("id") in visible_ids
-                })
+            })
 
             item_ids = sorted(item_ids)
             print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
