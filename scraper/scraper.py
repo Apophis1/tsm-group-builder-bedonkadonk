@@ -37,14 +37,13 @@ def scrape():
             context = browser.new_context()
             page = context.new_page()
 
-            # Route blocking *before* navigation
-            page.route("**/*", lambda route, req: route.abort() if any(x in req.url for x in ["ads", "doubleclick", "googletagmanager", "gstatic"]) else route.continue_())
+            # Block unnecessary assets
+            page.route("**/*", lambda route, req: route.abort() if req.resource_type in ["image", "font", "stylesheet"] or any(x in req.url for x in ["ads", "doubleclick", "googletagmanager", "gstatic"]) else route.continue_())
 
             page.goto(url, timeout=90000, wait_until='load')
-
+            print("Page loaded.")
 
             if mode == "retail":
-                # Evaluate script content directly in browser
                 js_data = page.evaluate("""
                 () => {
                     for (const script of document.scripts) {
@@ -56,19 +55,21 @@ def scrape():
                 }
                 """)
                 if not js_data:
+                    print("Retail script block not found")
                     return jsonify({"error": "Retail script block not found"}), 404
 
                 match = re.search(r'listviewitems\s*=\s*(\[[^\]]+\])', js_data, re.DOTALL)
                 if not match:
+                    print("Retail item block not matched")
                     return jsonify({"error": "Retail item block not matched"}), 404
 
                 items = json.loads(match.group(1))
 
             else:
-                # Classic-based scraping via addData JS block
                 content = page.content()
                 match = re.search(r'WH\.Gatherer\.addData\([^,]+,\s*[^,]+,\s*({.*?})\);', content, re.DOTALL)
                 if not match:
+                    print("Classic item block not found")
                     return jsonify({"error": "Could not find item data in source"}), 404
 
                 import demjson3
@@ -87,5 +88,3 @@ def scrape():
     except Exception as e:
         print("Scraper error:", str(e))
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
-   
-
