@@ -55,10 +55,13 @@ async def scrape_async():
             await page.wait_for_selector(".listview-row", timeout=10000)
             
             try:
+                # Only recheck mode if it wasn't explicitly set
+                if mode == "classic":
                 await page.wait_for_selector(".imitation-select", timeout=5000)
                 dropdown_text = await page.locator(".imitation-select").inner_text()
                 dropdown_text = dropdown_text.strip().lower()
                 if "season of discovery" in dropdown_text or "all seasons & phases" in dropdown_text:
+                    print("Dropdown indicates SoD — overriding mode to sod", flush=True)
                     mode = "sod"
 
             except Exception as e:
