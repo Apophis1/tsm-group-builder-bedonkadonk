@@ -15,6 +15,17 @@ def scrape():
     try:
         print("Received a request", flush=True)
         url = request.json.get("url")
+        if "classic" in url:
+            mode = "classic"
+        elif "sod" in url:
+            mode = "sod"
+        elif "anniversary" in url:
+            mode = "anniversary"
+        else:
+            mode = "retail"
+
+        print("Detected mode:", mode, flush=True)
+
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
@@ -37,12 +48,23 @@ def scrape():
 
         items = demjson3.decode(match.group(1))
 
-        item_ids = [
-            item.get("id") for item in items
-            if isinstance(item.get("id"), int) and 0 < item["id"] < 200000
-        ]
+        def is_valid_item(item, mode):
+            item_id = item.get("id")
 
-        print(f"Item IDs ({len(item_ids)}):", item_ids,flush=True)
+            if not isinstance(item_id, int):
+                return False
+
+            if mode in ["classic", "sod", "anniversary"]:
+                return 0 < item_id < 200000
+
+            if mode == "retail":
+                return item.get("hidden") is not True and item.get("flags2") != 0x800000
+
+            return False
+
+        item_ids = [item["id"] for item in items if is_valid_item(item, mode)]
+
+        print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
 
         return jsonify({"items": {"item_ids": item_ids}})
     
