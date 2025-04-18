@@ -29,19 +29,37 @@ def scrape():
         # Extract the listviewitems block which shows visible items
         match = re.search(r'listviewitems\s*=\s*(\[.*?\]);', content, re.DOTALL)
         if not match:
-            return jsonify({"error": "Could not find listviewitems block in page."}), 500
+            print("No match for listviewitems, trying JS evaluation fallback")
 
-        listview_block = match.group(1)
-        items = json.loads(listview_block)
+            js_data = page.evaluate("""
+                () => {
+                    for (const script of document.scripts) {
+                        if (script.textContent.includes("listviewitems = [")) {
+                            return script.textContent;
+                        }
+                    }
+                return null;
+                }
+            """)
 
-        # Extract item IDs from visible list
+        if js_data:
+            match = re.search(r'listviewitems\s*=\s*(\[.*?\]);', js_data, re.DOTALL)
+
+        if not match:
+            print("Still no match for listviewitems after JS evaluation.")
+            return jsonify({"error": "Could not find visible items on the page."}), 404
+
+
+        items = json5.loads(match.group(1))
+
         item_ids = [
             item.get("id") for item in items
-            if isinstance(item, dict) and isinstance(item.get("id"), int) and 0 < item["id"]
+            if isinstance(item, dict) and isinstance(item.get("id"), int) and 0 < item["id"] < 200000
         ]
 
         print("Visible item count:", len(item_ids))
         return jsonify({"items": {"item_ids": item_ids}})
+    
     except Exception as e:
         print("Scraper error:", str(e))
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
