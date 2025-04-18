@@ -63,7 +63,7 @@ async def scrape_async():
                         await page.wait_for_selector(".imitation-select", timeout=5000)
                         dropdown_text = await page.locator(".imitation-select").inner_text()
                         dropdown_text = dropdown_text.strip().lower()
-                        if !"WoW Classic - Classic Era" in dropdown_text:
+                        if "wow classic - classic era" not in dropdown_text:
                             print("Dropdown indicates SoD — overriding mode to sod", flush=True)
                             mode = "sod"
                 except Exception as e:
