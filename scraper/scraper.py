@@ -39,10 +39,14 @@ def scrape():
             # Block ads & tracking
             def block_ads(route, request):
                 try:
+                    if route._finished:
+                        return
                     if any(x in request.url for x in ["ads", "googletag", "gstatic", "doubleclick"]):
                         route.abort()
                     else:
                         route.continue_()
+                except asyncio.CancelledError:
+                    pass    
                 except Exception as e:
                 
                     # CancelledError happens if the page closes or request is gone
