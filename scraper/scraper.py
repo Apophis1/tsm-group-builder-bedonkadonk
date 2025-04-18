@@ -57,28 +57,27 @@ async def scrape_async():
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
 
-                try:
-                    # Only recheck mode if it wasn't explicitly set
-                    if mode == "classic":
-                        try:
-                            await page.reload()
-                            await page.wait_for_load_state("domcontentloaded")
+                if mode == "classic":
+                    try:
+                        await page.wait_for_selector(".imitation-select", timeout=5000)
 
-       
+        # Wait until dropdown text no longer contains "season" (for SoD) or "hardcore" etc.
+                        async def dropdown_is_classic():
                             dropdown_text = await page.locator(".imitation-select").inner_text()
-                            dropdown_text = dropdown_text.strip().lower()
-                            print(f"Dropdown text after reload: '{dropdown_text}'", flush=True)
+                            return "season" not in dropdown_text.lower() and "hardcore" not in dropdown_text.lower() 
+                        await page.wait_for_function("el => el.innerText.toLowerCase().includes('classic')", 
+                            arg=await page.query_selector(".imitation-select"), timeout=5000)
 
-                            if "classic" not in dropdown_text:
-                                print("Dropdown indicates SoD — overriding mode to sod", flush=True)
-                                mode = "sod"
-                                
-                        except Exception as e:
-                            print(f"Dropdown interaction failed: {type(e).__name__} - {e}", flush=True)
+                        dropdown_text = await page.locator(".imitation-select").inner_text()
+                        print(f"Dropdown text after wait: '{dropdown_text.strip()}'", flush=True)
+
+                        if "season" in dropdown_text.lower() or "hardcore" in dropdown_text.lower():
+                            print("Dropdown indicates SoD — overriding mode to sod", flush=True)
+                            mode = "sod"
 
                 except Exception as e:
-                    print(f"Dropdown not found or failed to read: {type(e).__name__} - {e}", flush=True)
-
+                    print(f"Dropdown read failed: {type(e).__name__} - {e}", flush=True)
+                    
                 if mode == "retail":
                     js_data = await page.evaluate("""
                         () => {
