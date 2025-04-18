@@ -5,7 +5,6 @@ from flask import Blueprint, request, jsonify
 from playwright.sync_api import sync_playwright
 
 scraper_bp = Blueprint("scraper", __name__)
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 
 @scraper_bp.route("/api/scrape", methods=["POST"])
 def scrape():
@@ -31,6 +30,8 @@ def scrape():
 
         print("Detected mode:", mode)
         print("Navigating to:", url)
+
+        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
