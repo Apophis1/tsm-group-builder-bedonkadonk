@@ -61,11 +61,11 @@ async def scrape_async():
                     # Only recheck mode if it wasn't explicitly set
                     if mode == "classic":
                         try:
-                            await page.wait_for_selector(".imitation-select", timeout=5000)
+                            await page.wait_for_selector(".imitation-select", timeout=10000)
                             await page.click(".imitation-select")  # open dropdown
 
         # Wait for menu items to appear
-                            await page.wait_for_selector(".icon-list .icon-list-item", timeout=3000)
+                            await page.wait_for_selector(".icon-list .icon-list-item", timeout=10000)
 
         # Click the menu option for "WoW Classic - Classic Era"
                             await page.locator(".icon-list .icon-list-item", has_text="WoW Classic - Classic Era").click()
