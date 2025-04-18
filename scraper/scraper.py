@@ -1,48 +1,91 @@
-import re
-import json5 as json
 import os
+import re
+import json
 from flask import Blueprint, request, jsonify
 from playwright.sync_api import sync_playwright
 
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
-
 scraper_bp = Blueprint("scraper", __name__)
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 
 @scraper_bp.route("/api/scrape", methods=["POST"])
 def scrape():
-    data = request.get_json()
-    url = data.get("url")
-
-    if not url:
-        return jsonify({"error": "No URL provided"}), 400
-
     try:
+        print("Received a request")
+        url = request.json.get("url")
+        if not url:
+            return jsonify({"error": "Missing URL"}), 400
+
+        # Determine game mode from the URL
+        if "/classic/" in url:
+            mode = "anniversary"
+        elif "/cata/" in url:
+            mode = "cata"
+        elif "/season-of-discovery/" in url:
+            mode = "sod"
+        elif "/ptr/" in url or "/beta/" in url:
+            mode = "retail"
+        elif "wowhead.com/items" in url or "/retail/" in url:
+            mode = "retail"
+        else:
+            mode = "classic"
+
+        print("Detected mode:", mode)
+        print("Navigating to:", url)
+
         with sync_playwright() as p:
-            browser = p.chromium.launch()
+            browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            print(f"Navigating to: {url}")
-            page.goto(url, timeout=45000, wait_until='load')
-            content = page.content()
-            browser.close()
 
-        # Extract the WH.Gatherer.addData block
-        match = re.search(r'WH\.Gatherer\.addData\([^,]+,\s*[^,]+,\s*({.*?})\);', content, re.DOTALL)
-        if not match:
-            return jsonify({"error": "Could not find item data in page."}), 500
+            # Block unneeded resources (ads/images/etc.)
+            page.route("**/*", lambda route, req: route.abort() if any(x in req.url for x in ["ads", "doubleclick", "googletagmanager", "gstatic"]) else route.continue_())
 
-        items = json.loads(match.group(1))
+            page.goto(url, timeout=90000, wait_until='load')
 
-        # Match item IDs which are top-level keys in the object
-        item_ids = re.findall(r'"(\d+)":\s*{', items)
+            if mode == "retail":
+                # Evaluate script content directly in browser
+                js_data = page.evaluate("""
+                () => {
+                    for (const script of document.scripts) {
+                        if (script.textContent.includes("listviewitems = [")) {
+                            return script.textContent;
+                        }
+                    }
+                    return null;
+                }
+                """)
+                if not js_data:
+                    return jsonify({"error": "Retail script block not found"}), 404
 
-        # Convert and filter valid item IDs
-        item_ids = [
-            int(item_id) for item_id in item_ids
-            if item_id.isdigit() and item_id != "0"
-        ]
-        size = len(item_ids)
-        print("Number of item IDs:", size)
+                match = re.search(r'listviewitems\s*=\s*(\[[^\]]+\])', js_data, re.DOTALL)
+                if not match:
+                    return jsonify({"error": "Retail item block not matched"}), 404
 
-        return jsonify({"items": {"item_ids": item_ids}})
+                items = json.loads(match.group(1))
+
+            else:
+                # Classic-based scraping via addData JS block
+                content = page.content()
+                match = re.search(r'WH\.Gatherer\.addData\([^,]+,\s*[^,]+,\s*({.*?})\);', content, re.DOTALL)
+                if not match:
+                    return jsonify({"error": "Could not find item data in source"}), 404
+
+                import demjson3
+                items_dict = demjson3.decode(match.group(1))
+                items = list(items_dict.values())
+
+            # Extract valid item IDs
+            item_ids = [
+                item.get("id") for item in items
+                if isinstance(item.get("id"), int) and 0 < item["id"] < 200000
+            ]
+
+            print(f"Mode: {mode}, Item count: {len(item_ids)}")
+            return jsonify({"items": {"item_ids": item_ids}})
+
     except Exception as e:
+        print("Scraper error:", str(e))
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    finally:
+        if 'browser' in locals():
+            browser.close()
+            
