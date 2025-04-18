@@ -56,12 +56,19 @@ def scrape():
                     print("Retail script block not found", flush=True)
                     return jsonify({"error": "Retail script block not found"}), 404
 
-                match = re.search(r'listviewitems\s*=\s*(\[[\s\S]*?\])\s*;', js_data)
+                match = re.search(r'listviewitems\s*=\s*(\[[\s\S]*?\])\s*(?:;|\n)', js_data)
+
                 if not match:
                     print("Retail item array not matched", flush=True)
                     return jsonify({"error": "Retail item array not matched"}), 404
+                
+                print("Matched JS data (first 500 chars):", match.group(1)[:500], flush=True)
 
-                items = json.loads(match.group(1))
+                items = page.evaluate("""
+                    () => {
+                        return typeof listviewitems !== 'undefined' ? listviewitems : [];
+                    }
+                """)
 
             else:
                 content = page.content()
