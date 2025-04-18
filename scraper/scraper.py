@@ -39,7 +39,8 @@ def scrape():
             # Block ads & tracking
             page.route("**/*", lambda route, req: route.abort() if any(x in req.url for x in ["ads", "googletag", "gstatic", "doubleclick"]) else route.continue_())
 
-            page.goto(url, timeout=90000, wait_until="load")
+            page.goto(url, wait_until='domcontentloaded')
+            page.wait_for_selector(".listview-row", timeout=10000)
 
             if mode == "retail":
                 js_data = page.evaluate("""
@@ -82,6 +83,8 @@ def scrape():
             visible_ids = page.eval_on_selector_all(
             ".listview-row", "nodes => nodes.map(n => parseInt(n.dataset.id)).filter(id => !isNaN(id))"
             )
+            print(f"Visible IDs found: {len(visible_ids)}")
+
 
             # Filter item IDs
             if mode == "retail":
