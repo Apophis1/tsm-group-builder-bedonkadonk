@@ -32,6 +32,7 @@ def scrape():
 
             try:
                 print("Navigating to:", url,flush=True)
+                timeout_ms = 90000 if mode == "retail" else 60000
                 page.goto(url, timeout=timeout_ms, wait_until='load')
             except Exception as nav_err:
                 print("Navigation timeout or error:", nav_err, flush=True)
