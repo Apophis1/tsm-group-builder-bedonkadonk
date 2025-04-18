@@ -1,7 +1,7 @@
 from flask import jsonify
 import os
 import re
-import json
+import json5 as json
 from flask import Blueprint, request, jsonify
 
 scraper_bp = Blueprint("scraper", __name__)
