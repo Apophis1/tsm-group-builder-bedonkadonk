@@ -18,10 +18,11 @@ def scrape():
 
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch()
+            browser = p.chromium.launch(headless=True, args=["--disable-gpu", "--no-sandbox"])
             page = browser.new_page()
+            page.route("**/*", lambda route, request: route.abort() if "ads" in request.url else route.continue_())
             print(f"Navigating to: {url}")
-            page.goto(url, timeout=45000, wait_until='load')
+            page.goto(url, timeout=45000, wait_until='domcontentloaded')
             content = page.content()
             browser.close()
 
