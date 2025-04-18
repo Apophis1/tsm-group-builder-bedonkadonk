@@ -81,13 +81,23 @@ def scrape():
 
 
             # Filter item IDs
-            item_ids = [
+            if mode == "retail":
+                item_ids = list({
                 item.get("id") for item in items
-                if isinstance(item.get("id"), int) and 0 < item["id"] < 200000
+                if isinstance(item.get("id"), int)
                 and not item.get("hidden", False)
                 and item.get("available", 1) == 1
-            ]
-
+                and item.get("id") in visible_ids
+            })
+            else:
+                item_ids = list({
+                item.get("id") for item in items
+                if isinstance(item.get("id"), int)
+                and 0 < item["id"] < 200000
+                and not item.get("hidden", False)
+                and item.get("available", 1) == 1
+                and item.get("id") in visible_ids
+            })
 
             print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
             return jsonify({"items": {"item_ids": item_ids}})
