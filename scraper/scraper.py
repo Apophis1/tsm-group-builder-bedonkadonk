@@ -92,6 +92,7 @@ async def scrape_async():
                 ".listview-row",
                 "nodes => nodes.map(n => parseInt(n.dataset.id)).filter(id => !isNaN(id))"
             )
+            print(f"Visible IDs found: {len(visible_ids)} - {visible_ids[:10]}", flush=True)
 
             if mode == "retail":
                 item_ids = list({
