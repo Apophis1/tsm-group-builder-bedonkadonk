@@ -94,6 +94,10 @@ async def scrape_async():
             )
             print(f"Visible IDs found: {len(visible_ids)} - {visible_ids[:10]}", flush=True)
 
+            if not visible_ids:
+                print("⚠️ No visible IDs detected — skipping visibility filter", flush=True)
+                visible_ids = [item["id"] for item in items if isinstance(item.get("id"), int)]
+
             if mode == "retail":
                 item_ids = list({
                     item.get("id") for item in items
