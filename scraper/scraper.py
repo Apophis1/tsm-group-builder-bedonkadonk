@@ -1,7 +1,7 @@
 from flask import jsonify
 import os
 import re
-import demjson3
+import json5
 from flask import Blueprint, request, jsonify
 
 scraper_bp = Blueprint("scraper", __name__)
@@ -16,13 +16,14 @@ def scrape():
         print("Received a request", flush=True)
         url = request.json.get("url")
         if "classic" in url:
-            mode = "classic"
+            mode = "anniversary"
         elif "sod" in url:
             mode = "sod"
-        elif "anniversary" in url:
-            mode = "anniversary"
+        elif "cata" in url:
+            mode = "cata"
         else:
             mode = "retail"
+
 
         print("Detected mode:", mode, flush=True)
 
@@ -47,7 +48,7 @@ def scrape():
             return jsonify({"error": "Could not find visible items on the page."}), 404
 
         try:
-            items = demjson3.decode(match.group(1))
+            items = json5.loads(match.group(1))
         except Exception as decode_err:
             print("JSON decode failed:", str(decode_err), flush=True)
             return jsonify({"error": "Item data could not be decoded. This may be a malformed or massive page."}), 500
