@@ -142,11 +142,12 @@ async def scrape_async():
             item_ids = sorted(item_ids)
             print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
             return jsonify({"items": {"item_ids": item_ids}})
-
-    finally:
+        finally:
         await context.close()
         await browser.close()
-
+            
     except Exception as e:
         print("Scraper error:", str(e), flush=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+    
