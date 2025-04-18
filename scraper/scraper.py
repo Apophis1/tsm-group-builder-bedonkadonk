@@ -37,7 +37,7 @@ def scrape():
         # Extract item IDs from visible list
         item_ids = [
             item.get("id") for item in items
-            if isinstance(item, dict) and isinstance(item.get("id"), int) and 0 < item["id"] < 200000
+            if isinstance(item, dict) and isinstance(item.get("id"), int) and 0 < item["id"]
         ]
 
         print("Visible item count:", len(item_ids))
