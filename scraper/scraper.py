@@ -1,7 +1,10 @@
 import re
-import json
+import json5 as json
+import os
 from flask import Blueprint, request, jsonify
 from playwright.sync_api import sync_playwright
+
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 
 scraper_bp = Blueprint("scraper", __name__)
 
@@ -27,7 +30,7 @@ def scrape():
         if not match:
             return jsonify({"error": "Could not find item data in page."}), 500
 
-        item_data_block = match.group(1)
+        items = json.loads(match.group(1))
 
         # Match item IDs which are top-level keys in the object
         item_ids = re.findall(r'"(\d+)":\s*{', item_data_block)
