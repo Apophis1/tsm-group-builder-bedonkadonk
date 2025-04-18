@@ -53,6 +53,9 @@ async def scrape_async():
 
             await page.goto(url, wait_until='domcontentloaded')
             await page.wait_for_selector(".listview-row", timeout=10000)
+            if ".imitation-select" in page:
+                mode = "sod"
+                
 
             if mode == "retail":
                 js_data = await page.evaluate("""
