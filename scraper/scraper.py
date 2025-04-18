@@ -1,7 +1,10 @@
 import re
+import os
 import json5 as json  # json5 allows JavaScript-style parsing
 from flask import Blueprint, request, jsonify
 from playwright.sync_api import sync_playwright
+
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/ms-playwright"
 
 scraper_bp = Blueprint("scraper", __name__)
 
