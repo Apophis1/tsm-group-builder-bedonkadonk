@@ -37,8 +37,8 @@ async def scrape_async():
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
-            page = await browser.new_page()
-
+            context = await browser.new_context()
+            page = await context.new_page()
             # 🔐 Define and apply async route blocker
             async def block_ads(route, request):
                 try:
@@ -142,6 +142,10 @@ async def scrape_async():
             item_ids = sorted(item_ids)
             print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
             return jsonify({"items": {"item_ids": item_ids}})
+
+    finally:
+        await context.close()
+        await browser.close()
 
     except Exception as e:
         print("Scraper error:", str(e), flush=True)
