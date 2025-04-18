@@ -53,8 +53,16 @@ async def scrape_async():
 
             await page.goto(url, wait_until='domcontentloaded')
             await page.wait_for_selector(".listview-row", timeout=10000)
-            if ".imitation-select" in page:
-                mode = "sod"
+            
+            try:
+                await page.wait_for_selector(".imitation-select", timeout=5000)
+                dropdown_text = await page.locator(".imitation-select").inner_text()
+
+                if "Season of Discovery" in dropdown_text or "All Seasons and Phases" in dropdown_text:
+                    mode = "sod"
+
+            except Exception as e:
+                print(f"Dropdown not found or failed to read: {type(e).__name__} - {e}", flush=True)
                 
 
             if mode == "retail":
