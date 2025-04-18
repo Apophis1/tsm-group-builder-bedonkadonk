@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     libdbus-1-3 \
     libcups2 \
-    json5 \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
