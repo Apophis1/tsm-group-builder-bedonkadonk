@@ -59,6 +59,7 @@ async def scrape_async():
 
                 if mode == "classic":
                     try:
+                        await page.reload()
                         await page.wait_for_selector(".imitation-select", timeout=5000)
 
         # Wait until dropdown text no longer contains "season" (for SoD) or "hardcore" etc.
