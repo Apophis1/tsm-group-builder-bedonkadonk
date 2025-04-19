@@ -56,11 +56,6 @@ async def scrape_async():
 
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
-                print ("Current context: ", context)
-                
-
-                dropdown_text = await page.locator(".imitation-select").inner_text()
-                print ("dropdown text is currently showing as: ", dropdown_text)
 
                 #if mode == "classic":
                 #    try:
@@ -91,6 +86,7 @@ async def scrape_async():
                             return null;
                         }
                     """)
+                    print("js_data: ", js_data)
                     if not js_data:
                         print("Retail script block not found", flush=True)
                         return jsonify({"error": "Retail script block not found"}), 404
@@ -107,12 +103,14 @@ async def scrape_async():
                     """)
                 elif mode in ("classic", "anniversary", "sod"):
                     content = await page.content()
+                    print("mode is not retail, here's the current content: ", content)
                     match = re.search(r'listviewitems\s*=\s*(\[[\s\S]*?\])\s*;', content)
                     if not match:
                         print("Classic listviewitems block not found", flush=True)
                         return jsonify({"error": "Could not find listviewitems in HTML"}), 404
 
                     items = json.loads(match.group(1))
+                    print("Items: ", items)
                 else:
                     return jsonify({"error": f"Unsupported mode: {mode}"}), 400
 
