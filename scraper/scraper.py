@@ -86,7 +86,6 @@ async def scrape_async():
                             return null;
                         }
                     """)
-                    print("js_data: ", js_data)
                     if not js_data:
                         print("Retail script block not found", flush=True)
                         return jsonify({"error": "Retail script block not found"}), 404
@@ -110,7 +109,7 @@ async def scrape_async():
                         return jsonify({"error": "Could not find listviewitems in HTML"}), 404
 
                     items = json.loads(match.group(1))
-                    print("Items: ", items)
+                
                 else:
                     return jsonify({"error": f"Unsupported mode: {mode}"}), 400
 
@@ -152,7 +151,6 @@ async def scrape_async():
                     })
 
                 item_ids = sorted(item_ids)
-                print("Scraped items (raw):", json.dumps(items, indent=2), flush=True)
                 print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
                 return jsonify({"items": {"item_ids": item_ids}})
 
