@@ -56,13 +56,12 @@ async def scrape_async():
 
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
+                await page.wait_for_selector(".imitation-select", timeout=10000)
+                dropdown_text = await page.locator(".imitation-select").inner_text()
+                print ("dropdown text is currently showing as: ", dropdown_text)
 
                 if mode == "classic":
                     try:
-                        await page.reload()
-                        await page.wait_for_selector(".imitation-select", timeout=5000)
-
-        # Wait until dropdown text no longer contains "season" (for SoD) or "hardcore" etc.
                         async def dropdown_is_classic():
                             dropdown_text = await page.locator(".imitation-select").inner_text()
                             return "season" not in dropdown_text.lower() and "hardcore" not in dropdown_text.lower() 
