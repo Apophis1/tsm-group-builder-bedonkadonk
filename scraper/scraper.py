@@ -57,6 +57,19 @@ async def scrape_async():
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
 
+                if mode == "classic":
+                    try:
+        # Wait for the filters or dropdowns to be visible
+                        await page.wait_for_selector(".imitation-select", timeout=5000)
+        
+        # Pull the full HTML and check for "Added in SoD"
+                        content = await page.content()
+                        if "Added in SoD" in content:
+                            print("Detected 'Added in SoD' in page content — overriding mode to sod", flush=True)
+                            mode = "sod"
+                    except Exception as e:
+                        print(f"Dropdown or content check failed: {type(e).__name__} - {e}", flush=True)
+
                 #if mode == "classic":
                 #    try:
                 #        async def dropdown_is_classic():
