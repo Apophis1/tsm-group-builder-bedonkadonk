@@ -19,22 +19,17 @@ async def scrape_async():
         if not url:
             return jsonify({"error": "Missing URL"}), 400
 
-        # Detect realm mode
-        if "/classic/" in url:
+       # Determine mode based on the URL
+        if "classic" in url:
             mode = "classic"
-        elif "/cata/" in url:
+        elif "cata" in url:
             mode = "cata"
-        elif "/season-of-discovery/" in url:
-            mode = "sod"
-        elif "/ptr/" in url or "/beta/" in url:
-            mode = "retail"
-        elif "wowhead.com/items" in url or "/retail/" in url:
-            mode = "retail"
         else:
-            mode = "classic"
+            mode = "retail"
 
-        print("Detected mode:", mode, flush=True)
-        print("Navigating to:", url, flush=True)
+
+        #print("Detected mode:", mode, flush=True)
+        #print("Navigating to:", url, flush=True)
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -56,11 +51,6 @@ async def scrape_async():
 
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
-                dropdown_text = await page.locator(".imitation-select").inner_text()
-                if re.search(r"season.*discovery", dropdown_text, re.IGNORECASE):
-                    mode = "sod"
-
-
                     
                 if mode == "retail":
                     js_data = await page.evaluate("""
@@ -116,25 +106,16 @@ async def scrape_async():
                         and not item.get("hidden", False)
                         and item.get("available", 1) == 1
                         and item.get("id") in visible_ids
-                    })
-                elif mode in ("classic", "anniversary"):
+                })
+                else:  # classic or cata
                     item_ids = list({
-                        item.get("id") for item in items
-                        if isinstance(item.get("id"), int)
-                        and 0 < item["id"] < 200000
-                        and not item.get("hidden", False)
-                        and item.get("available", 1) == 1
-                        and item.get("id") in visible_ids
-                    })
-                elif mode == "sod":
-                    item_ids = list({
-                        item.get("id") for item in items
-                        if isinstance(item.get("id"), int)
-                        and item["id"] > 0
-                        and not item.get("hidden", False)
-                        and item.get("available", 1) == 1
-                        and item.get("id") in visible_ids
-                    })
+                    item.get("id") for item in items
+                    if isinstance(item.get("id"), int)
+                    and item["id"] > 0
+                    and not item.get("hidden", False)
+                    and item.get("available", 1) == 1
+                    and item.get("id") in visible_ids
+                })
 
                 item_ids = sorted(item_ids)
                 print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
