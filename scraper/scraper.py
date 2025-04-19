@@ -66,7 +66,7 @@ async def scrape_async():
                             dropdown_text = await page.locator(".imitation-select").inner_text()
                             return "season" not in dropdown_text.lower() and "hardcore" not in dropdown_text.lower() 
                         await page.wait_for_function("el => el.innerText.toLowerCase().includes('classic')", 
-                            arg=await page.query_selector(".imitation-select"), timeout=5000)
+                            arg=await page.query_selector(".imitation-select"), timeout=55000)
 
                         dropdown_text = await page.locator(".imitation-select").inner_text()
                         print(f"Dropdown text after wait: '{dropdown_text.strip()}'", flush=True)
