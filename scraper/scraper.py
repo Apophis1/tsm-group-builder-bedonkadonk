@@ -57,7 +57,7 @@ async def scrape_async():
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
                 print ("Current context: ", context)
-                print("Scraped items (raw):", json.dumps(items, indent=2), flush=True)
+                
 
                 dropdown_text = await page.locator(".imitation-select").inner_text()
                 print ("dropdown text is currently showing as: ", dropdown_text)
@@ -154,6 +154,7 @@ async def scrape_async():
                     })
 
                 item_ids = sorted(item_ids)
+                print("Scraped items (raw):", json.dumps(items, indent=2), flush=True)
                 print(f"Mode: {mode}, Item count: {len(item_ids)}", flush=True)
                 return jsonify({"items": {"item_ids": item_ids}})
 
