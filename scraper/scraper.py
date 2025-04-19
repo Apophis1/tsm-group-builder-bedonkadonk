@@ -56,37 +56,11 @@ async def scrape_async():
 
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
+                dropdown_text = await page.locator(".imitation-select").inner_text()
+                if re.search(r"season.*discovery", dropdown_text, re.IGNORECASE):
+                    mode = "sod"
 
-                if mode == "classic":
-                    try:
-        # Wait for the filters or dropdowns to be visible
-                        await page.wait_for_selector(".imitation-select", timeout=5000)
-        
-        # Pull the full HTML and check for "Added in SoD"
-                        content = await page.content()
-                        if "Added in SoD" in content:
-                            print("Detected 'Added in SoD' in page content — overriding mode to sod", flush=True)
-                            mode = "sod"
-                    except Exception as e:
-                        print(f"Dropdown or content check failed: {type(e).__name__} - {e}", flush=True)
 
-                #if mode == "classic":
-                #    try:
-                #        async def dropdown_is_classic():
-                #            dropdown_text = await page.locator(".imitation-select").inner_text()
-                #            return "season" not in dropdown_text.lower() and "hardcore" not in dropdown_text.lower() 
-                #        await page.wait_for_function("el => el.innerText.toLowerCase().includes('classic')", 
-                #            arg=await page.query_selector(".imitation-select"), timeout=10000)
-
-                #        dropdown_text = await page.locator(".imitation-select").inner_text()
-                #        print(f"Dropdown text after wait: '{dropdown_text.strip()}'", flush=True)
-
-                #       if "season" in dropdown_text.lower() or "hardcore" in dropdown_text.lower():
-                #            print("Dropdown indicates SoD — overriding mode to sod", flush=True)
-                #            mode = "sod"
-
-                #    except Exception as e:
-                #        print(f"Dropdown read failed: {type(e).__name__} - {e}", flush=True)*\
                     
                 if mode == "retail":
                     js_data = await page.evaluate("""
@@ -115,7 +89,6 @@ async def scrape_async():
                     """)
                 elif mode in ("classic", "anniversary", "sod"):
                     content = await page.content()
-                    print("mode is not retail, here's the current content: ", content)
                     match = re.search(r'listviewitems\s*=\s*(\[[\s\S]*?\])\s*;', content)
                     if not match:
                         print("Classic listviewitems block not found", flush=True)
