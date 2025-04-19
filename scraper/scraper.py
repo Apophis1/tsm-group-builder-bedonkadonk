@@ -57,8 +57,8 @@ async def scrape_async():
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
                 print ("Current context: ", context)
-                await page.evalute()
-                print ("Current page content: ", page)
+                print("Scraped items (raw):", json.dumps(items, indent=2), flush=True)
+
                 dropdown_text = await page.locator(".imitation-select").inner_text()
                 print ("dropdown text is currently showing as: ", dropdown_text)
 
