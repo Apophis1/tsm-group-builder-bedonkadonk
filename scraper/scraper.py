@@ -56,11 +56,10 @@ async def scrape_async():
 
                 await page.goto(url, wait_until='domcontentloaded')
                 await page.wait_for_selector(".listview-row", timeout=10000)
-                await page.wait_for_selector(".imitation-select", timeout=10000)
-                dropdown_text = await page.locator(".imitation-select").inner_text()
+                print ("Current context: ", context)
                 print ("dropdown text is currently showing as: ", dropdown_text)
 
-                if mode == "classic":
+                /*if mode == "classic":
                     try:
                         async def dropdown_is_classic():
                             dropdown_text = await page.locator(".imitation-select").inner_text()
@@ -76,7 +75,7 @@ async def scrape_async():
                             mode = "sod"
 
                     except Exception as e:
-                        print(f"Dropdown read failed: {type(e).__name__} - {e}", flush=True)
+                        print(f"Dropdown read failed: {type(e).__name__} - {e}", flush=True)*\
                     
                 if mode == "retail":
                     js_data = await page.evaluate("""
